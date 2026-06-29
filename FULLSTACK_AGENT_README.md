@@ -19,7 +19,6 @@ Write code that is:
 - Fully type-aware in Python.
 - Simple CSS and Bootstrap-friendly in Vue.
 - Easy for a junior developer to follow.
-- Practical for one Docker image serving both backend and frontend.
 
 Do not over-engineer with heavy dependency injection, repositories, interfaces, abstract factories, auto imports, micro-exceptions, or hidden framework magic unless the existing source already uses them.
 
@@ -134,21 +133,25 @@ Good examples:
 
 ```python
 class User(models.Model):
+    """Represent User Data And Behavior."""
     mobile: str
     is_active: bool
 
     @staticmethod
     def get_actives() -> QuerySet["User"]:
+        """Get Actives."""
         # Get Active Users
         return User.objects.filter(is_active=True)
 ```
 
 ```python
 class Payment(models.Model):
+    """Represent Payment Data And Behavior."""
     amount: int
     status: int
 
     def mark_paid(self) -> None:
+        """Mark Paid."""
         # Mark Payment As Paid
         self.status = PAYMENT_STATUS_PAID
         self.save(update_fields=["status"])
@@ -210,7 +213,9 @@ Prefer `Handler` for orchestration classes.
 
 ```python
 class PaymentHandler:
+    """Orchestrate Payment Workflow."""
     def pay(self) -> bool:
+        """Pay."""
         # Run Payment Workflow
         if not self._validate():
             return False
@@ -235,6 +240,7 @@ user_id: int = 42
 mobile: str = "09123456789"
 
 def get_user(user_id: int) -> User | None:
+    """Get User."""
     # Get User By Id
     return User.objects.filter(id=user_id).first()
 ```
@@ -340,6 +346,7 @@ For expected missing objects, returning `None` is acceptable.
 
 ```python
 def get_user(user_id: int) -> User | None:
+    """Get User."""
     # Get User Or None
     return User.objects.filter(id=user_id).first()
 ```
@@ -369,6 +376,7 @@ Use early returns:
 
 ```python
 def post(self, request: Request) -> Response:
+    """Post."""
     mobile: str | None = request.data.get("mobile")
 
     if not mobile:
@@ -399,7 +407,9 @@ Correct:
 
 ```python
 class UserSerializer(ModelSerializer):
+    """Serialize Explicit User Fields."""
     class Meta:
+        """Define Serializer Metadata."""
         model = User
         fields: list[str] = ["id", "mobile", "name"]
 ```
@@ -408,7 +418,9 @@ Wrong:
 
 ```python
 class UserSerializer(ModelSerializer):
+    """Serialize Explicit User Fields."""
     class Meta:
+        """Define Serializer Metadata."""
         model = User
         exclude: list[str] = ["password"]
 ```
@@ -1038,7 +1050,7 @@ exec "$@"
 
 ---
 
-## 31. Comment Style
+## 31. Comment And Docstring Style
 
 All code comments must be English.
 
@@ -1065,6 +1077,35 @@ Bad:
 ```
 
 Do not write long noisy comments. Do not write code with zero comments. Use comments as section labels or intent markers.
+
+Python docstring rules are mandatory:
+
+- Every Python class must have a docstring.
+- Every Python class method, instance method, static method, and classmethod must have a docstring.
+- Python files/modules must not have module-level docstrings.
+- Never put a triple-quoted string at the top of a Python file.
+- Keep docstrings short, useful, and responsibility-focused.
+
+Correct:
+
+```python
+class PaymentHandler:
+    """Orchestrate Payment Workflow."""
+
+    def pay(self) -> bool:
+        """Run Payment Workflow."""
+        return True
+```
+
+Wrong:
+
+```python
+"""Payment Helpers."""
+
+class PaymentHandler:
+    def pay(self) -> bool:
+        return True
+```
 
 ---
 
@@ -1118,6 +1159,9 @@ Before returning any code, verify every item below.
 - [ ] Exceptions are not over-split into many tiny classes.
 - [ ] Logs are structured and include useful context.
 - [ ] Comments are English and Capital Words Case.
+- [ ] Every Python class has a docstring.
+- [ ] Every Python instance method, static method, and classmethod has a docstring.
+- [ ] No Python file/module starts with a module-level docstring.
 - [ ] Code remains readable even if not extremely short.
 
 ## Vue Frontend
