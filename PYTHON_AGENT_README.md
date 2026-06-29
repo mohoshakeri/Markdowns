@@ -17,7 +17,8 @@ Write code that is:
 - Readable before compact.
 - Fully type annotated.
 - Structured with guard clauses and early returns.
-- Practical: avoid heavy dependency injection, repositories, interfaces, and micro-exceptions unless the existing project already requires them.
+- Practical: avoid heavy dependency injection, repositories, interfaces, and micro-exceptions unless the existing
+  project already requires them.
 
 Prefer a clear workflow over clever abstraction.
 
@@ -107,23 +108,24 @@ project/
 └── main.py
 ```
 
-Important: in this developer's personal style, `services/` mainly means external systems. Do not move all business logic into services by default.
+Important: in this developer's personal style, `services/` mainly means external systems. Do not move all business logic
+into services by default.
 
 ---
 
 ## 3. Responsibility Map
 
-| Location | Responsibility |
-|---|---|
-| `models.py` / `models/` | Business Behavior, State Checks, Query Helpers, DB-Aware Methods |
-| `views.py` / `endpoints/` | HTTP Orchestration Only: Parse, Validate, Call Model/Handler, Return Response |
-| `serializers.py` / `schemas/` | Input/Output Shape And Explicit Field Exposure |
-| `services/` | Third-Party Integrations: SMS, Payment Gateway, Redis, Email, External APIs |
-| `utils/` | Framework-Aware Helpers |
-| `tools/` | Pure Python Helpers Like Text, Datetime, Number, Crypto |
-| `constants/` / `CONSTANTS.py` | Magic Values, Statuses, Cache Keys, Limits |
-| `tasks/` | Celery, Cron, Background Jobs |
-| `tests/` | Class-Based Test Packs And API Tests |
+| Location                      | Responsibility                                                                |
+|-------------------------------|-------------------------------------------------------------------------------|
+| `models.py` / `models/`       | Business Behavior, State Checks, Query Helpers, DB-Aware Methods              |
+| `views.py` / `endpoints/`     | HTTP Orchestration Only: Parse, Validate, Call Model/Handler, Return Response |
+| `serializers.py` / `schemas/` | Input/Output Shape And Explicit Field Exposure                                |
+| `services/`                   | Third-Party Integrations: SMS, Payment Gateway, Redis, Email, External APIs   |
+| `utils/`                      | Framework-Aware Helpers                                                       |
+| `tools/`                      | Pure Python Helpers Like Text, Datetime, Number, Crypto                       |
+| `constants/` / `CONSTANTS.py` | Magic Values, Statuses, Cache Keys, Limits                                    |
+| `tasks/`                      | Celery, Cron, Background Jobs                                                 |
+| `tests/`                      | Class-Based Test Packs And API Tests                                          |
 
 ---
 
@@ -143,15 +145,18 @@ Correct:
 
 ```python
 class User(AbstractModel):
+    """Represent User Data And Behavior."""
     mobile: str
     is_active: bool
 
     @classmethod
     def get_active_by_mobile(cls, mobile: str) -> "User | None":
+        """Get Active By Mobile."""
         # Get Active User By Mobile
         return cls.objects.filter(mobile=mobile, is_active=True).first()
 
     def can_buy_product(self, price: int) -> bool:
+        """Can Buy Product."""
         # Check User Wallet Balance
         return self.wallet >= price
 ```
@@ -165,6 +170,7 @@ class ProfileView(BaseView):
     """
 
     def get(self, request: Request) -> Response:
+        """Get."""
         user: User | None = User.get_active_by_mobile(request.user.mobile)
 
         if not user:
@@ -178,6 +184,7 @@ Wrong:
 
 ```python
 def get_active_user(mobile):
+    """Get Active User."""
     return User.objects.filter(mobile=mobile, is_active=True).first()
 ```
 
@@ -193,7 +200,10 @@ Correct:
 
 ```python
 class SmsService:
+    """Wrap Sms Provider Operations."""
+
     def send_code(self, mobile: str, code: str) -> bool:
+        """Send Code."""
         # Send Verification Code By External Sms Provider
         payload: dict[str, str] = {
             "mobile": mobile,
@@ -207,7 +217,10 @@ Wrong:
 
 ```python
 class UserService:
+    """Represent A Wrong Service Example."""
+
     def get_active_users(self):
+        """Get Active Users."""
         return User.objects.filter(is_active=True)
 ```
 
@@ -223,8 +236,11 @@ Correct:
 
 ```python
 class TextTools:
+    """Provide Text Utility Methods."""
+
     @staticmethod
     def normalize_mobile(value: str) -> str:
+        """Normalize Mobile."""
         # Normalize Mobile Digits
         return value.strip().replace("+98", "0")
 ```
@@ -233,7 +249,10 @@ Use private methods for internal workflow steps:
 
 ```python
 class PaymentHandler:
+    """Orchestrate Payment Workflow."""
+
     def pay(self) -> bool:
+        """Pay."""
         # Run Payment Workflow
         if not self._validate():
             return False
@@ -244,6 +263,7 @@ class PaymentHandler:
         return self._save_result()
 
     def _validate(self) -> bool:
+        """Validate."""
         # Validate Payment Data
         return True
 ```
@@ -254,12 +274,16 @@ Avoid `@property` in new code. Use explicit methods:
 
 ```python
 class User(AbstractModel):
+    """Represent User Data And Behavior."""
+
     def get_full_name(self) -> str:
+        """Get Full Name."""
         # Build User Full Name
         return "{} {}".format(self.first_name, self.last_name).strip()
 ```
 
-Existing legacy properties may remain, but do not introduce new ones unless the project already uses them heavily and consistency requires it.
+Existing legacy properties may remain, but do not introduce new ones unless the project already uses them heavily and
+consistency requires it.
 
 ---
 
@@ -274,6 +298,7 @@ items: list[int] = [1, 2, 3]
 
 
 def get_user(user_id: int) -> User | None:
+    """Get User."""
     # Get User By Id
     return User.objects.filter(id=user_id).first()
 ```
@@ -361,12 +386,14 @@ from apps.authentication.models import User
 
 ## 10. Error Handling
 
-Expected business failures should usually return `None`, `False`, or a controlled response. Do not create many tiny custom exceptions.
+Expected business failures should usually return `None`, `False`, or a controlled response. Do not create many tiny
+custom exceptions.
 
 Correct:
 
 ```python
 def get_user_by_token(token: str) -> User | None:
+    """Get User By Token."""
     # Get User By Token
     if not token:
         return None
@@ -437,7 +464,10 @@ Correct:
 
 ```python
 class UserSerializer(ModelSerializer):
+    """Serialize Explicit User Fields."""
+
     class Meta:
+        """Define Serializer Metadata."""
         model = User
         fields: list[str] = ["id", "mobile", "name"]
 ```
@@ -446,7 +476,10 @@ Wrong:
 
 ```python
 class UserSerializer(ModelSerializer):
+    """Serialize Explicit User Fields."""
+
     class Meta:
+        """Define Serializer Metadata."""
         model = User
         exclude: list[str] = ["password"]
 ```
@@ -515,17 +548,36 @@ Correct:
 
 Do not write long comments. Do not write zero comments. Use short section comments and intent comments.
 
-Django view docstrings may describe methods:
+Docstring rules are mandatory:
+
+- Every class must have a docstring.
+- Every class method, instance method, static method, and classmethod must have a docstring.
+- Module-level/file-level docstrings are forbidden.
+- Do not add a triple-quoted string at the top of a Python file.
+- Keep docstrings short and practical: one sentence is enough.
+- Docstrings must describe responsibility, not implementation details.
+
+Correct:
 
 ```python
-class AuthView(BaseView):
-    """
-    GET  -> Get User Info
-    POST -> Login Or Register
-    """
+class Service:
+    """Handle Authentication API Requests."""
+
+    def service_get(self, data: dict) -> dict:
+        """Get Current User Data."""
+        return {}
 ```
 
-Avoid docstrings for every simple helper.
+Wrong:
+
+```python
+"""Authentication Views."""
+
+
+class Service:
+    def service_get(self, data: dict) -> dict:
+        return {}
+```
 
 ---
 
@@ -577,6 +629,7 @@ class OrderPayView(BaseView):
     """
 
     def post(self, request: Request, order_id: int) -> Response:
+        """Post."""
         # Get Order And Validate Access
         order: Order = get_object_or_error(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -626,7 +679,8 @@ Before finalizing any Python backend change, verify every item:
 
 ## Structure
 
-- [ ] File is placed in the correct layer: model, view/endpoint, serializer/schema, service, util, tool, task, or constants.
+- [ ] File is placed in the correct layer: model, view/endpoint, serializer/schema, service, util, tool, task, or
+  constants.
 - [ ] Django app uses classic files unless splitting is clearly justified.
 - [ ] `services/` is used for external integrations, not random business logic.
 - [ ] Pure helpers are in `tools/`; framework-aware helpers are in `utils/`.
@@ -638,6 +692,9 @@ Before finalizing any Python backend change, verify every item:
 - [ ] Guard clauses are used instead of nested `if/else`.
 - [ ] Workflow is readable step by step.
 - [ ] Comments are short, English, and Capital Words Case.
+- [ ] Every Python class has a docstring.
+- [ ] Every Python instance method, static method, and classmethod has a docstring.
+- [ ] No Python file/module starts with a module-level docstring.
 - [ ] No long explanatory comments hide bad structure.
 - [ ] `.format()` is used instead of f-strings.
 - [ ] `requirements.txt` remains the dependency source unless project says otherwise.
