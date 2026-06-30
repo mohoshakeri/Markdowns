@@ -561,11 +561,30 @@ Correct:
 
 ```python
 class Service:
-    """Handle Authentication API Requests."""
+    """
+    Handle Authentication API Requests.
+    
+    And More Description ...
+    """
 
     def service_get(self, data: dict) -> dict:
-        """Get Current User Data."""
-        return {}
+        """
+        Get Current User Data.
+        
+        And More Description ...
+        """
+        
+        # Process 1 Title	
+        process_1 ...
+        ...
+        ...
+        
+        # Process 2 Title	
+    	process_2 ...
+    	...
+    	...
+    	
+        return data
 ```
 
 Wrong:
@@ -576,7 +595,14 @@ Wrong:
 
 class Service:
     def service_get(self, data: dict) -> dict:
-        return {}
+        process_1 ...
+        ...
+        ...
+    	process_2 ...
+    	...
+    	...
+    	
+        return data
 ```
 
 ---
