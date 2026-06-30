@@ -1086,25 +1086,50 @@ Python docstring rules are mandatory:
 - Never put a triple-quoted string at the top of a Python file.
 - Keep docstrings short, useful, and responsibility-focused.
 
-Correct:
-
 ```python
-class PaymentHandler:
-    """Orchestrate Payment Workflow."""
+class Service:
+    """
+    Handle Authentication API Requests.
+    
+    And More Description ...
+    """
 
-    def pay(self) -> bool:
-        """Run Payment Workflow."""
-        return True
+    def service_get(self, data: dict) -> dict:
+        """
+        Get Current User Data.
+        
+        And More Description ...
+        """
+        
+        # Process 1 Title	
+        process_1 ...
+        ...
+        ...
+        
+        # Process 2 Title	
+    	process_2 ...
+    	...
+    	...
+    	
+        return data
 ```
 
 Wrong:
 
 ```python
-"""Payment Helpers."""
+"""Authentication Views."""
 
-class PaymentHandler:
-    def pay(self) -> bool:
-        return True
+
+class Service:
+    def service_get(self, data: dict) -> dict:
+        process_1 ...
+        ...
+        ...
+    	process_2 ...
+    	...
+    	...
+    	
+        return data
 ```
 
 ---
